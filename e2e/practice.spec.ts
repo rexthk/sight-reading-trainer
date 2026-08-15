@@ -18,6 +18,26 @@ test('opens guided reasoning without revealing the chord', async ({ page }) => {
   await expect(page.getByText('STEP 1 · INVENTORY')).toBeVisible()
 })
 
+test('runs the rapid third-recognition loop and stores pair progress', async ({ page }) => {
+  await page.goto('./')
+  await page.getByRole('button', { name: /Third Interval Recognition/ }).click()
+  await expect(page.getByRole('img', { name: /bass clef/ })).toBeVisible()
+  await page.getByRole('combobox', { name: 'Staff view' }).selectOption('grand')
+  await expect(page.getByRole('img', { name: /Grand staff/ })).toBeVisible()
+  await page.getByRole('button', { name: /Keyboard off/ }).click()
+  await expect(page.getByRole('img', { name: /on a piano keyboard/ })).toBeVisible()
+  await page.getByRole('button', { name: /Rapid off/ }).click()
+  await expect(page.getByRole('heading', { name: 'Under 1 second.' })).toBeVisible()
+  const firstQuestion = await page.getByRole('img', { name: /Grand staff/ }).getAttribute('aria-label')
+  await page.getByRole('button', { name: 'Major 3rd' }).click()
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('shape-first.progress.v1') || '{}').learningAttempts?.length ?? 0)).toBe(1)
+  await page.waitForTimeout(700)
+  await expect(page.getByRole('img', { name: firstQuestion ?? '' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Next/ })).toBeVisible()
+  await page.getByRole('button', { name: /Next/ }).click()
+  await expect(page.getByRole('button', { name: 'Major 3rd' })).toBeEnabled()
+})
+
 test('guided root testing can derive the answer without a spelling lookup', async ({ page }) => {
   await page.goto('./')
   await page.getByRole('button', { name: /Guided Recognition/ }).click()

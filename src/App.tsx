@@ -17,14 +17,16 @@ import { ProgressView } from './components/ProgressView'
 import { DataSettings } from './components/DataSettings'
 import { BuildChordSession } from './components/BuildChordSession'
 import { IntervalSession } from './components/IntervalSession'
+import { ThirdIntervalRecognition } from './components/ThirdIntervalRecognition'
 
-type View = 'home' | 'setup' | 'practice' | 'build' | 'interval' | 'progress' | 'settings'
+type View = 'home' | 'setup' | 'practice' | 'build' | 'interval' | 'thirds' | 'progress' | 'settings'
 
-function Home({ progress, onContinue, onBuild, onIntervals, onRecognition, onCustom }: {
+function Home({ progress, onContinue, onBuild, onIntervals, onThirds, onRecognition, onCustom }: {
   progress: ProgressData
   onContinue: () => void
   onBuild: () => void
   onIntervals: () => void
+  onThirds: () => void
   onRecognition: () => void
   onCustom: () => void
 }) {
@@ -59,7 +61,8 @@ function Home({ progress, onContinue, onBuild, onIntervals, onRecognition, onCus
         <div className="learning-path-grid">
           <button onClick={onBuild}><span>A</span><div><b>Build the Chord</b><p>Derive the 3rd and 5th: letter name first, accidental second.</p></div><i>→</i></button>
           <button onClick={onIntervals}><span>B</span><div><b>Interval Lab</b><p>Learn M3, m3 and P5 only where they support triads.</p></div><i>→</i></button>
-          <button onClick={onRecognition}><span>C</span><div><b>Guided Recognition</b><p>Reorder into 3rds, identify the root, then return to the bass.</p></div><i>→</i></button>
+          <button onClick={onThirds}><span>C</span><div><b>Third Interval Recognition</b><p>Rapidly see major versus minor 3rds across every piano key.</p></div><i>→</i></button>
+          <button onClick={onRecognition}><span>D</span><div><b>Guided Recognition</b><p>Reorder into 3rds, identify the root, then return to the bass.</p></div><i>→</i></button>
         </div>
       </section>
 
@@ -115,6 +118,7 @@ export default function App() {
   }
   if (view === 'build') return <BuildChordSession progress={progress} onRecord={handleLearningAttempt} onExit={() => setView('home')} />
   if (view === 'interval') return <IntervalSession progress={progress} onRecord={handleLearningAttempt} onExit={() => setView('home')} />
+  if (view === 'thirds') return <ThirdIntervalRecognition progress={progress} onRecord={handleLearningAttempt} onExit={() => setView('home')} />
 
   const startRecommended = () => {
     const activity = recommendedActivity(progress)
@@ -134,7 +138,7 @@ export default function App() {
         </nav>
       </header>
 
-      {view === 'home' && <Home progress={progress} onContinue={startRecommended} onBuild={() => setView('build')} onIntervals={() => setView('interval')} onRecognition={() => start({ ...config, style: 'learning', timer: 0 })} onCustom={() => setView('setup')} />}
+      {view === 'home' && <Home progress={progress} onContinue={startRecommended} onBuild={() => setView('build')} onIntervals={() => setView('interval')} onThirds={() => setView('thirds')} onRecognition={() => start({ ...config, style: 'learning', timer: 0 })} onCustom={() => setView('setup')} />}
       {view === 'setup' && <PracticeSetup config={config} progress={progress} onChange={updateConfig} onStart={() => start(config)} />}
       {view === 'progress' && <ProgressView progress={progress} />}
       {view === 'settings' && (

@@ -5,7 +5,8 @@ export type ExerciseMode = 'absolute' | 'in-key'
 export type TimerSetting = 0 | 3 | 5 | 10
 export type RecognitionStyle = 'learning' | 'instant'
 export type RecognitionPhase = 'root-position' | 'inversion' | 'spread' | 'arpeggio'
-export type IntervalKind = 'major-third' | 'minor-third' | 'perfect-fifth'
+export type ThirdIntervalKind = 'major-third' | 'minor-third'
+export type IntervalKind = ThirdIntervalKind | 'perfect-fifth'
 export type ErrorCause =
   | 'root-unknown'
   | 'quality-unknown'
@@ -48,6 +49,15 @@ export interface IntervalExercise {
   upper: SpelledPitch
   interval: IntervalKind
   chordConnection: string
+}
+
+export interface ThirdIntervalExercise {
+  id: string
+  lower: SpelledPitch
+  upper: SpelledPitch
+  interval: ThirdIntervalKind
+  semitones: 3 | 4
+  signature: string
 }
 
 export interface Exercise {
@@ -141,7 +151,23 @@ export interface IntervalAttempt {
   errorTags: ErrorCause[]
 }
 
-export type LearningAttempt = ConstructionAttempt | IntervalAttempt
+export interface ThirdRecognitionAttempt {
+  id: string
+  kind: 'third-recognition'
+  timestamp: number
+  lower: SpelledPitch
+  upper: SpelledPitch
+  interval: ThirdIntervalKind
+  selected: ThirdIntervalKind
+  correct: boolean
+  responseMs: number
+  rapid: boolean
+  underTarget: boolean
+  signature: string
+  errorTags: ErrorCause[]
+}
+
+export type LearningAttempt = ConstructionAttempt | IntervalAttempt | ThirdRecognitionAttempt
 
 export interface SkillStat {
   score: number

@@ -35,10 +35,12 @@ There is no backend or account. Practice history and the weakness model live in 
 
 - **Build the Chord** derives the 3rd and 5th from a supplied root and quality. The UI requires the letter name before the accidental and offers progressive, non-revealing hints.
 - **Interval Lab** focuses only on major 3rds, minor 3rds, and perfect 5ths, and always explains how the interval functions inside a chord.
+- **Third Interval Recognition** is a minimal two-choice notation drill for visually distinguishing major and minor 3rds. Bass clef is the default, with Treble and Grand Staff views plus an optional keyboard. It covers all 12 starting pitches, balances both qualities, avoids recent repeats, supports optional note names and keyboard shortcuts, and includes an under-one-second rapid-fire target.
 - **Learning Mode** adds retry-without-reveal, root testing, stacked-third reordering, bass/root separation, and reasoning-first feedback.
 - **Instant Recognition** flashes the notation briefly and removes pre-answer help. It is always available; construction competence influences recommendations but never locks a mode.
 - Recognition progresses through root-position blocks, close inversions, spread voicings, and one-bar arpeggios. **In Key** can add major-key signatures and Roman numerals.
 - Adaptive selection draws 70% from weak skills, 20% from review-due skills, and 10% from unseen material while avoiding exact recent repeats. Construction mistakes distinguish letter-distance, accidental, and interval errors.
 - Mastery is stored separately for chord structure, useful intervals, spelling method, learning phase, roots, qualities, inversions, patterns, keys, and scale degrees. Guided answers receive partial—not fluent—mastery credit.
+- Third-recognition accuracy and response time are stored for each exact note pair. The Progress screen lists the least accurate and slowest pairs separately.
 
 The app intentionally has no MIDI input: the task is to derive and recognise the harmony before playing it. Seventh chords remain out of scope until triads are fluent.

@@ -12,6 +12,8 @@ import {
   type PatternName,
   type PracticeConfig,
   type SpelledPitch,
+  type ThirdIntervalExercise,
+  type ThirdIntervalKind,
 } from './types'
 import {
   buildChord,
@@ -224,5 +226,27 @@ export function generateIntervalExercise(
     upper,
     interval,
     chordConnection,
+  }
+}
+
+export function generateThirdIntervalExercise(
+  recentSignatures: string[] = [],
+  preferredInterval?: ThirdIntervalKind,
+  random: RandomSource = Math.random,
+): ThirdIntervalExercise {
+  const intervals: ThirdIntervalKind[] = preferredInterval
+    ? [preferredInterval]
+    : ['major-third', 'minor-third']
+  const candidates = ROOT_OPTIONS.flatMap((lower) => intervals.map((interval) => ({ lower, interval })))
+  const fresh = candidates.filter(({ lower, interval }) => !recentSignatures.includes(`${lower.pitchClass}:${interval}`))
+  const selected = choose(fresh.length ? fresh : candidates, random)
+  const upper = intervalAbove(selected.lower, selected.interval)
+  return {
+    id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${random()}`,
+    lower: selected.lower,
+    upper,
+    interval: selected.interval,
+    semitones: selected.interval === 'major-third' ? 4 : 3,
+    signature: `${selected.lower.pitchClass}:${selected.interval}`,
   }
 }

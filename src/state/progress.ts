@@ -253,9 +253,18 @@ export function recordLearningAttempt(progress: ProgressData, attempt: LearningA
     keys.push([`interval:${thirdKind}`, attempt.thirdCorrect ? assistedOutcome : 0])
     keys.push([`interval:${attempt.quality === 'diminished' ? 'diminished-fifth' : 'perfect-fifth'}`, attempt.fifthCorrect ? assistedOutcome : 0])
     for (const [key, value] of keys) next.skills[key] = updateStat(next.skills[key], value, attempt.responseMs, attempt.timestamp)
-  } else {
+  } else if (attempt.kind === 'interval') {
     next.skills[`phase:interval`] = updateStat(next.skills[`phase:interval`], outcome, attempt.responseMs, attempt.timestamp)
     next.skills[`interval:${attempt.interval}`] = updateStat(next.skills[`interval:${attempt.interval}`], outcome, attempt.responseMs, attempt.timestamp)
+  } else {
+    const pairKey = `third-pair:${attempt.lower.name}–${attempt.upper.name}`
+    next.skills['phase:third-recognition'] = updateStat(next.skills['phase:third-recognition'], outcome, attempt.responseMs, attempt.timestamp)
+    next.skills[`third-quality:${attempt.interval}`] = updateStat(next.skills[`third-quality:${attempt.interval}`], outcome, attempt.responseMs, attempt.timestamp)
+    next.skills[pairKey] = updateStat(next.skills[pairKey], outcome, attempt.responseMs, attempt.timestamp)
+    if (attempt.rapid) {
+      const rapidOutcome = attempt.correct && attempt.underTarget ? 1 : 0
+      next.skills['rapid-third:under-one-second'] = updateStat(next.skills['rapid-third:under-one-second'], rapidOutcome, attempt.responseMs, attempt.timestamp)
+    }
   }
   for (const cause of attempt.errorTags) {
     const key = `cause:${cause}`

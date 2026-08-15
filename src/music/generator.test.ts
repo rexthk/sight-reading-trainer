@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateConstructionExercise, generateExercise, generateIntervalExercise, validateExercise } from './generator'
+import { generateConstructionExercise, generateExercise, generateIntervalExercise, generateThirdIntervalExercise, validateExercise } from './generator'
 import { INVERSIONS, PATTERNS, QUALITIES, type PracticeConfig } from './types'
 import { MAJOR_KEYS, ROOT_OPTIONS } from './theory'
 
@@ -83,5 +83,25 @@ describe('exercise generator', () => {
     const interval = generateIntervalExercise([3], ['major-third'], () => 0)
     expect([interval.lower.name, interval.upper.name, interval.interval]).toEqual(['E♭', 'G', 'major-third'])
     expect(interval.chordConnection).toContain('E♭ major chord')
+  })
+
+  it('generates both thirds from all 12 pitch classes with musical spellings', () => {
+    for (let pitchClass = 0; pitchClass < 12; pitchClass += 1) {
+      const random = () => (pitchClass + 0.01) / 12
+      const major = generateThirdIntervalExercise([], 'major-third', random)
+      const minor = generateThirdIntervalExercise([], 'minor-third', random)
+      expect(major.lower.pitchClass).toBe(pitchClass)
+      expect(major.semitones).toBe(4)
+      expect(minor.lower.pitchClass).toBe(pitchClass)
+      expect(minor.semitones).toBe(3)
+    }
+    expect(generateThirdIntervalExercise([], 'minor-third', () => 0).upper.name).toBe('E♭')
+    expect(generateThirdIntervalExercise([], 'major-third', () => 10 / 12).lower.name).toBe('B♭')
+  })
+
+  it('avoids recently shown third pairs when alternatives exist', () => {
+    const first = generateThirdIntervalExercise([], 'major-third', () => 0)
+    const second = generateThirdIntervalExercise([first.signature], 'major-third', () => 0)
+    expect(second.signature).not.toBe(first.signature)
   })
 })

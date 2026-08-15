@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { BEGINNER_CONFIG, generateExercise } from '../music/generator'
-import type { Answer, ConstructionAttempt, ProgressData } from '../music/types'
+import type { Answer, ConstructionAttempt, ProgressData, ThirdRecognitionAttempt } from '../music/types'
 import {
   EMPTY_PROGRESS,
   evaluateAnswer,
@@ -71,5 +71,27 @@ describe('progress tracking', () => {
     expect(progress.skills['spelling:letter-distance'].attempts).toBe(8)
     expect(progress.skills['spelling:accidentals'].attempts).toBe(8)
     expect(recommendedActivity(progress)).toBe('interval')
+  })
+
+  it('tracks third accuracy and timing for each exact note pair', () => {
+    const attempt: ThirdRecognitionAttempt = {
+      id: 'third-1',
+      kind: 'third-recognition',
+      timestamp: Date.now(),
+      lower: { name: 'E♭', pitchClass: 3 },
+      upper: { name: 'G', pitchClass: 7 },
+      interval: 'major-third',
+      selected: 'major-third',
+      correct: true,
+      responseMs: 780,
+      rapid: true,
+      underTarget: true,
+      signature: '3:major-third',
+      errorTags: [],
+    }
+    const next = recordLearningAttempt(structuredClone(EMPTY_PROGRESS), attempt)
+    expect(next.skills['third-pair:E♭–G']).toMatchObject({ attempts: 1, correct: 1, averageMs: 780 })
+    expect(next.skills['third-quality:major-third'].attempts).toBe(1)
+    expect(next.skills['rapid-third:under-one-second'].correct).toBe(1)
   })
 })

@@ -1,4 +1,4 @@
-import type { ProgressData, SkillStat } from '../music/types'
+import type { ProgressData, SkillStat, ThirdRecognitionAttempt } from '../music/types'
 import { INTERVAL_LABELS, inversionLabel, patternLabel, qualityLabel, ROOT_OPTIONS } from '../music/theory'
 
 function mean(items: SkillStat[]): number {
@@ -44,6 +44,63 @@ function SkillSection({ title, prefix, progress }: { title: string; prefix: stri
   )
 }
 
+interface PairSummary {
+  label: string
+  attempts: number
+  correct: number
+  averageMs: number
+}
+
+function ThirdPairList({ entries }: { entries: PairSummary[] }) {
+  return entries.length ? (
+    <div className="third-pair-list">
+      {entries.map((pair) => (
+        <div key={pair.label}>
+          <strong>{pair.label}</strong>
+          <span>{Math.round(pair.correct / pair.attempts * 100)}% · {(pair.averageMs / 1000).toFixed(2)}s</span>
+          <small>{pair.attempts} {pair.attempts === 1 ? 'attempt' : 'attempts'}</small>
+        </div>
+      ))}
+    </div>
+  ) : <p className="empty-copy">No third-recognition answers yet.</p>
+}
+
+function ThirdIntervalSummary({ progress }: { progress: ProgressData }) {
+  const attempts = progress.learningAttempts.filter(
+    (attempt): attempt is ThirdRecognitionAttempt => attempt.kind === 'third-recognition',
+  )
+  const pairMap = new Map<string, PairSummary>()
+  for (const attempt of attempts) {
+    const label = `${attempt.lower.name}–${attempt.upper.name}`
+    const current = pairMap.get(label) ?? { label, attempts: 0, correct: 0, averageMs: 0 }
+    const count = current.attempts + 1
+    pairMap.set(label, {
+      label,
+      attempts: count,
+      correct: current.correct + (attempt.correct ? 1 : 0),
+      averageMs: Math.round((current.averageMs * current.attempts + attempt.responseMs) / count),
+    })
+  }
+  const pairs = [...pairMap.values()]
+  const leastAccurate = [...pairs].sort((a, b) => (a.correct / a.attempts) - (b.correct / b.attempts) || b.attempts - a.attempts).slice(0, 5)
+  const slowest = [...pairs].sort((a, b) => b.averageMs - a.averageMs).slice(0, 5)
+  const rapidAttempts = attempts.filter((attempt) => attempt.rapid)
+  const rapidHits = rapidAttempts.filter((attempt) => attempt.underTarget).length
+
+  return (
+    <section className="panel third-progress-panel">
+      <div className="skill-section-heading">
+        <div><p className="eyebrow">MAJOR 3RD vs MINOR 3RD</p><h2>Third interval recognition</h2></div>
+        <span>{rapidAttempts.length ? `${rapidHits}/${rapidAttempts.length} under 1s` : `${attempts.length} answers`}</span>
+      </div>
+      <div className="third-progress-columns">
+        <div><h3>Least accurate</h3><ThirdPairList entries={leastAccurate} /></div>
+        <div><h3>Slowest</h3><ThirdPairList entries={slowest} /></div>
+      </div>
+    </section>
+  )
+}
+
 export function ProgressView({ progress }: { progress: ProgressData }) {
   const recent = progress.attempts.slice(-20)
   const accuracy = recent.length ? recent.filter((attempt) => attempt.result.allCorrect).length / recent.length : 0
@@ -62,6 +119,8 @@ export function ProgressView({ progress }: { progress: ProgressData }) {
         <div className="summary-card"><span>Recognition time</span><strong>{recent.length ? `${(averageMs / 1000).toFixed(1)}s` : '—'}</strong><small>average response</small></div>
         <div className="summary-card"><span>Total exercises</span><strong>{progress.attempts.length + progress.learningAttempts.length}</strong><small>stored on this device</small></div>
       </section>
+
+      <ThirdIntervalSummary progress={progress} />
 
       <div className="skill-layout">
         <SkillSection title="Chord construction" prefix="construction" progress={progress} />

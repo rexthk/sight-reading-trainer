@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shape-first-v2'
+const CACHE_NAME = 'shape-first-v3'
 
 async function precacheApp() {
   const cache = await caches.open(CACHE_NAME)
